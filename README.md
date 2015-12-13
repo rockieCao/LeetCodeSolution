@@ -1,2 +1,2 @@
 # LeetCodeSolution
-Repository for my c++ solution for LeetCode problems
+Repository for git practice
