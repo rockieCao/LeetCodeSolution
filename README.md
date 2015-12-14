@@ -1,3 +1,2 @@
 # LeetCodeSolution
-Repository for git practice
-Git is a free open software
+Repository for my c++ solution to leetcode problems (Updating...)
