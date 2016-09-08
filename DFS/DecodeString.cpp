@@ -5,6 +5,13 @@
 #include <algorithm>
 using namespace std;
 
+//递归算法：遇到[进栈，遇到]出栈
+//非递归算法：
+//  两个stack，一个记录数字，一个记录当前未解码的字符串
+//  遇到[，进栈，分别记录数字和之前未解码的字符串
+//  遇到]，出栈当前计数，并将未解码的字符串进行重复，在append到上一个未解码的字符串后面
+//  注意处理最外层的情况，即numStack.empty()==true
+
 class Solution {
 public:
 	string DFS(string s, int &k)
@@ -38,44 +45,50 @@ public:
 	string decodeString2(string s) {
 		int slen = s.length();
 		
-		stack<int> st1;
-		stack<string> st2;
+		stack<int> numStack;
+		stack<string> strStack;
 
+		string res = "";
 		int cnt = 0;
-		for (int i = 0; i < slen; ) {
+		string curStr = ""; //当前未解码的字符串
+		for (int i = 0; i < slen; ++i) {
 			if (s[i] >= '0' && s[i] <= '9') {
 				cnt = cnt * 10 + (s[i] - '0');
-				++i;
 			}
 			else if (s[i] == '[') {
-				st1.push(cnt);
+				numStack.push(cnt); //记录计数
 				cnt = 0;
 
-				st2.push("[");
-				++i; //skip [
-				string str = "";
-				while (i<slen && s[i]>='a' && s[i]<='z') {
-					str += s[i];
-					++i;
+				strStack.push(curStr); //当前未解码的字符串进栈
+				curStr = "";
+			}
+			else if (s[i] >= 'a' && s[i] <= 'z') {
+				if (!numStack.empty()) { //如果不是最外层嵌套
+					curStr += s[i];
 				}
-				st2.push(str);
+				else
+					res+=s[i]; 
 			}
 			else if (s[i] == ']') {
-				++i;
-				string str = "";
-				while (!st2.empty() && st2.top() != "[") {
-					int k = st1.top();
-					st1.pop();
-					for (int j = 0; j < k; ++j)
-						str += st2.top();
-					st2.pop();
+				int num = numStack.top();
+				numStack.pop();
+
+				if (numStack.empty()) { //如果是最外层嵌套
+					for (int j = 0; j < num; ++j)
+						res.append(curStr); //直接append当前的字符串到结果中
+					curStr = strStack.top();
+					strStack.pop();
 				}
-				if (!st2.empty()) st2.pop();
-				st2.push(str);
-				st1.push(1);
+				else {
+					string tmp = "";
+					for (int j = 0; j < num; ++j)
+						tmp.append(curStr);
+					curStr = strStack.top() + tmp; //上次未解码的字符串+当前解码的字符串
+					strStack.pop();
+				}
 			}
 		}
 
-		return st2.top();
+		return res;
 	}
 };
